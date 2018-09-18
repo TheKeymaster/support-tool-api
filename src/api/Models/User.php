@@ -1,6 +1,6 @@
 <?php
 
-namespace src\api\Models;
+namespace api\Models;
 
 class User
 {

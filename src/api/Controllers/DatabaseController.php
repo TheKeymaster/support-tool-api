@@ -1,9 +1,10 @@
 <?php
 
-namespace src\api\Controllers;
+namespace api\Controllers;
 
 use InvalidArgumentException;
 use mysqli;
+use RuntimeException;
 
 class DatabaseController
 {
@@ -43,14 +44,17 @@ class DatabaseController
             throw new InvalidArgumentException('Type of host, username and/or password is invalid!');
         }
 
-        $conn = new mysqli($host, $username, $password, self::DB_NAME);
+        $mysqli = new mysqli($host, $username, $password, self::DB_NAME);
 
-        if ($conn->connect_error) {
-            throw new InvalidArgumentException(sprintf('Connection to database failed. Reason: %s',
-                $conn->connect_error));
+        if ($mysqli->connect_error) {
+            throw new RuntimeException(sprintf('Connection to database failed. Reason: %s',
+                $mysqli->connect_error));
         }
 
-        $this->mysqli = $conn;
+        $mysqli->set_charset('utf8');
+        $mysqli->query('SET CHARACTER SET utf8');
+
+        $this->mysqli = $mysqli;
         $this->host = $host;
         $this->username = $username;
         $this->password = $password;
@@ -107,9 +111,7 @@ class DatabaseController
             if ($result->num_rows > 0) {
                 $message = 'Row(s) found!';
                 $results = $this->createStatusMessage(self::STATUS_SUCCESS, $message, $result->num_rows);
-                while ($row = $result->fetch_assoc()) {
-                    $results[] = $row;
-                }
+                $results['result'] = $result->fetch_all(MYSQLI_ASSOC);
                 return $results;
             } else {
                 $message = 'No rows are matching your query!';
@@ -162,6 +164,28 @@ class DatabaseController
         if ($this->mysqli->query($query)) {
             $message = 'Row(s) were deleted successfully!';
             return $this->createStatusMessage(self::STATUS_SUCCESS, $message, $this->mysqli->affected_rows);
+        } else {
+            return $this->unknownDatabaseError();
+        }
+    }
+
+    /**
+     * Executes a custom sql command.
+     *
+     * @param $query
+     * @return array
+     */
+    public function execCustomSqlQuery($query)
+    {
+        if (!is_string($query)) {
+            throw new InvalidArgumentException('Type of command is invalid!');
+        }
+
+        if ($result = $this->mysqli->query($query)) {
+            $message = 'success';
+            $results = $this->createStatusMessage(self::STATUS_SUCCESS, $message, $result->num_rows);
+            $results['result'] = $result->fetch_all(MYSQLI_ASSOC);
+            return $results;
         } else {
             return $this->unknownDatabaseError();
         }
