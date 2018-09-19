@@ -16,12 +16,16 @@ if (isset($_GET['authkey']) && isset($_GET['ticketid'])) {
 
     if (array_key_exists(0, $users)) {
         $userId = $users[0]['id'];
-        $result = $databaseController->execCustomSqlQuery("SELECT * FROM tickets LEFT JOIN messages m on tickets.id = m.ticketid WHERE tickets.createdby = '$userId' AND tickets.id = '$ticketid'");
+        if ($users[0]['role'] <= 1) {
+            $result = $databaseController->execCustomSqlQuery("SELECT tickets.title, tickets.status, m.createdat, m.createdby, m.body, m.isinternal FROM tickets LEFT JOIN messages m ON tickets.id = m.ticketid WHERE tickets.createdby = '$userId' AND tickets.id = '$ticketid' AND isinternal = 0");
+        } else {
+            $result = $databaseController->execCustomSqlQuery("SELECT tickets.title, tickets.status, m.createdat, m.createdby, m.body, m.isinternal FROM tickets LEFT JOIN messages m ON tickets.id = m.ticketid WHERE tickets.id = '$ticketid'");
+        }
     } else {
-        $result['result'] = false;
+        $result['error'] = 'Invalid authkey given!';
     }
 } else {
-    $result['result'] = false;
+    $result['error'] = 'No authkey and/or ticketid given!';
 }
 
 echo json_encode($result);

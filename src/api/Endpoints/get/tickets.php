@@ -15,12 +15,17 @@ if (isset($_GET['authkey'])) {
 
     if (array_key_exists(0, $users)) {
         $userId = $users[0]['id'];
-        $result = $databaseController->execCustomSqlQuery("SELECT title, status FROM tickets WHERE tickets.createdby = '$userId'");
+
+        if ($users[0]['role'] <= 1) {
+            $result = $databaseController->execCustomSqlQuery("SELECT title, status FROM tickets WHERE tickets.createdby = '$userId'");
+        } else {
+            $result = $databaseController->execCustomSqlQuery("SELECT title, status FROM tickets");
+        }
     } else {
-        $result['result'] = false;
+        $result['error'] = 'Invalid authkey given!';
     }
 } else {
-    $result['result'] = false;
+    $result['error'] = 'No authkey given!';
 }
 
 echo json_encode($result);
