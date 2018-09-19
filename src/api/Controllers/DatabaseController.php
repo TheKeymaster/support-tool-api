@@ -47,8 +47,10 @@ class DatabaseController
         $mysqli = new mysqli($host, $username, $password, self::DB_NAME);
 
         if ($mysqli->connect_error) {
-            throw new RuntimeException(sprintf('Connection to database failed. Reason: %s',
-                $mysqli->connect_error));
+            throw new RuntimeException(sprintf(
+                'Connection to database failed. Reason: %s',
+                $mysqli->connect_error
+            ));
         }
 
         $mysqli->set_charset('utf8');
@@ -111,7 +113,7 @@ class DatabaseController
             if ($result->num_rows > 0) {
                 return $result->fetch_all(MYSQLI_ASSOC);
             } else {
-                $message = 'No rows are matching your query!';
+                $message = 'No results are matching your params! Make sure you have set the correct authkey!';
                 return $this->createStatusMessage(self::STATUS_SUCCESS, $message, 0);
             }
         } else {

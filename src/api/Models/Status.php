@@ -2,7 +2,6 @@
 
 namespace api\Models;
 
-
 class Status
 {
     /** @var int $id */
