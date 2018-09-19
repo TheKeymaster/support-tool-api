@@ -109,10 +109,7 @@ class DatabaseController
 
         if ($result = $this->mysqli->query($query)) {
             if ($result->num_rows > 0) {
-                $message = 'Row(s) found!';
-                $results = $this->createStatusMessage(self::STATUS_SUCCESS, $message, $result->num_rows);
-                $results['result'] = $result->fetch_all(MYSQLI_ASSOC);
-                return $results;
+                return $result->fetch_all(MYSQLI_ASSOC);
             } else {
                 $message = 'No rows are matching your query!';
                 return $this->createStatusMessage(self::STATUS_SUCCESS, $message, 0);
@@ -182,10 +179,7 @@ class DatabaseController
         }
 
         if ($result = $this->mysqli->query($query)) {
-            $message = 'success';
-            $results = $this->createStatusMessage(self::STATUS_SUCCESS, $message, $result->num_rows);
-            $results['result'] = $result->fetch_all(MYSQLI_ASSOC);
-            return $results;
+            return $result->fetch_all(MYSQLI_ASSOC);
         } else {
             return $this->unknownDatabaseError();
         }
