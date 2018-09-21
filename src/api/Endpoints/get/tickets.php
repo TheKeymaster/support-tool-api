@@ -17,9 +17,9 @@ if (isset($_GET['authkey'])) {
         $userId = $users[0]['id'];
 
         if ($users[0]['role'] <= 1) {
-            $result = $databaseController->execCustomSqlQuery("SELECT title, status FROM tickets WHERE tickets.createdby = '$userId'");
+            $result = $databaseController->execCustomSqlQuery("SELECT id, title, status FROM tickets WHERE tickets.createdby = '$userId'");
         } else {
-            $result = $databaseController->execCustomSqlQuery("SELECT title, status FROM tickets");
+            $result = $databaseController->execCustomSqlQuery("SELECT id, title, status FROM tickets");
         }
     } else {
         $result['error'] = 'Invalid authkey given!';
