@@ -8,6 +8,12 @@ ApiOutputHelper::setJsonHeader();
 
 $databaseController = ApiOutputHelper::createDatabaseConnection();
 
+if (isset($_POST['ismobile']) && $_POST['ismobile'] == true) {
+    $ismobile = true;
+} else {
+    $ismobile = false;
+}
+
 if (isset($_POST['email']) && isset($_POST['password'])) {
     $email = $_POST['email'];
     $password = $_POST['password'];
@@ -17,7 +23,11 @@ if (isset($_POST['email']) && isset($_POST['password'])) {
 
     // Only send the authkey if the password is valid.
     if ($result['result']) {
-        $result['authkey'] = $dbResult[0]['authkey'];
+        if ($ismobile === true && $dbResult[0]['role'] > 1) {
+            $result['result'] = false;
+        } else {
+            $result['authkey'] = $dbResult[0]['authkey'];
+        }
     }
 } else {
     $result = ['result' => false];
