@@ -2,7 +2,6 @@
 
 namespace api\Controllers;
 
-
 use api\Helpers\ApiOutputHelper;
 
 class OutputController
@@ -27,7 +26,7 @@ class OutputController
      */
     private function getDataByUserId($userId, $requester)
     {
-        $result = $this->databaseController->execCustomSqlQuery("SELECT email, firstname, lastname, role FROM user WHERE id = '$userId'");
+        $result = $this->databaseController->getUserById($userId);
 
         if ($this->securityController->isAllowedToSeeUserData($requester[0], $result[0])) {
             return $result;
@@ -71,5 +70,35 @@ class OutputController
         } else {
             return ['error' => SecurityController::INVALID_AUTHKEY];
         }
+    }
+
+    /**
+     * Gets all tickets from the requester.
+     *
+     * @param $requester
+     * @return array
+     */
+    public function getTicketsFromRequester($requester)
+    {
+        if (array_key_exists(0, $requester)) {
+            $userId = $requester[0]['id'];
+
+            if ($requester[0]['role'] <= 1) {
+                return $this->databaseController->execCustomSqlQuery("SELECT id, title, status FROM tickets WHERE tickets.createdby = '$userId'");
+            } else {
+                return $this->databaseController->execCustomSqlQuery("SELECT id, title, status FROM tickets");
+            }
+
+        } else {
+            return ['error' => SecurityController::INVALID_AUTHKEY];
+        }
+    }
+
+    /**
+     * @return array
+     */
+    public function getAllRoles()
+    {
+        return $this->databaseController->read('*', 'roles');
     }
 }

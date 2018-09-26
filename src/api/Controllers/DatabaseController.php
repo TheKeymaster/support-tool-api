@@ -195,7 +195,16 @@ class DatabaseController
      */
     public function getUserByAuthkey($authkey)
     {
-        return $this->execCustomSqlQuery("SELECT email, firstname, lastname, role FROM user WHERE authkey = '$authkey'");
+        return $this->execCustomSqlQuery("SELECT id, email, firstname, lastname, role FROM user WHERE authkey = '$authkey'");
+    }
+
+    /**
+     * @param int $id
+     * @return array
+     */
+    public function getUserById($id)
+    {
+        return $this->execCustomSqlQuery("SELECT email, firstname, lastname, role FROM user WHERE id = '$id'");
     }
 
     /**

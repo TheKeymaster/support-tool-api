@@ -75,6 +75,8 @@ Returns:
 
 URL: [here](http://localhost/src/api/Endpoints/get/user.php?authkey=3c7ebb-b25806-b3c21f-352432-80456)
 
+Returns:
+
 ```json
 {
     "error": "Invalid or unknown authkey!"
@@ -86,3 +88,24 @@ URL: [here](http://localhost/src/api/Endpoints/get/user.php?authkey=3c7ebb-b2580
 ##### Request all roles
 
 URL: [here](http://localhost/src/api/Endpoints/get/roles.php?authkey=31166d-85d82e-4ea258-3bfa60-c903f5)
+
+Returns:
+
+```json
+[
+    {
+        "id": "1",
+        "name": "Kunde"
+    },
+    {
+        "id": "2",
+        "name": "Supportmitarbeiter"
+    },
+    {
+        "id": "3",
+        "name": "Administrator"
+    }
+]
+```
+
+#### 
