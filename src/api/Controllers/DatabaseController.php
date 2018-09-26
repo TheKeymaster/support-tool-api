@@ -188,6 +188,17 @@ class DatabaseController
     }
 
     /**
+     * Gets the user by the auth key and returns email, firstname, lastname and role as array.
+     *
+     * @param $authkey
+     * @return array
+     */
+    public function getUserByAuthkey($authkey)
+    {
+        return $this->execCustomSqlQuery("SELECT email, firstname, lastname, role FROM user WHERE authkey = '$authkey'");
+    }
+
+    /**
      * This function is being called if the SQL query returns an error.
      *
      * @return array
