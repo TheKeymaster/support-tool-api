@@ -207,6 +207,11 @@ class DatabaseController
         return $this->execCustomSqlQuery("SELECT email, firstname, lastname, role FROM user WHERE id = '$id'");
     }
 
+    public function getUserByEmail($email)
+    {
+        return $this->read('*', 'user', 1, "email = '$email'")[0];
+    }
+
     /**
      * This function is being called if the SQL query returns an error.
      *

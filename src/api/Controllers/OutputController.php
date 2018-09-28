@@ -95,6 +95,72 @@ class OutputController
     }
 
     /**
+     * Gets the messages for the current ticket id.
+     *
+     * @param array $requester
+     * @param int $ticketId
+     * @return array
+     */
+    public function getMessagesFromRequesterAndTicketId($requester, $ticketId)
+    {
+        if (array_key_exists(0, $requester)) {
+            $userId = $requester[0]['id'];
+            if ($requester[0]['role'] <= 1) {
+                $messages = $this->databaseController->execCustomSqlQuery("SELECT tickets.title, tickets.status, m.createdat, m.createdby, m.body, m.isinternal FROM tickets LEFT JOIN messages m ON tickets.id = m.ticketid WHERE tickets.createdby = '$userId' AND tickets.id = '$ticketId' AND m.isinternal = 0");
+                if (count($messages) < 1) {
+                    return ['error' => SecurityController::ACCESS_DENIED];
+                } else {
+                    return $messages;
+                }
+            } else {
+                return $this->databaseController->execCustomSqlQuery("SELECT tickets.title, tickets.status, m.createdat, m.createdby, m.body, m.isinternal FROM tickets LEFT JOIN messages m ON tickets.id = m.ticketid WHERE tickets.id = '$ticketId'");
+            }
+        } else {
+            return ['error' => SecurityController::INVALID_AUTHKEY];
+        }
+    }
+
+    /**
+     * Checks if the current password is valid. If a supporter tries to login on mobile, this will return false.
+     *
+     * @param $password
+     * @param $hashedPassword
+     * @param $role
+     * @param $isMobile
+     * @return bool
+     */
+    public function isPasswordValid($password, $hashedPassword, $role, $isMobile)
+    {
+        $passwordIsValid = password_verify($password, $hashedPassword);
+
+        // Only send the authkey if the password is valid.
+        if ($passwordIsValid) {
+            if ($isMobile && $role > 1) {
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Checks if the mobile flag is actually true or something else.
+     *
+     * @param bool|null $flag
+     * @return bool
+     */
+    public function isUserMobile($flag)
+    {
+        if ($flag == true) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * @return array
      */
     public function getAllRoles()
