@@ -187,6 +187,22 @@ class OutputController
         return implode('-', str_split(substr(strtolower(md5(microtime().rand(1000, 9999))), 0, 30), 6));
     }
 
+    /**
+     * Creates a new message.
+     *
+     * @param string $createdat String as DateTime readable for the database.
+     * @param int $createdby Id from the user that created this message.
+     * @param int $ticketid Id in which this message should be created.
+     * @param string $body Message body.
+     * @param bool $isinternal If the message if true or false 0-1 based (tinyint).
+     * @return array
+     */
+    public function createNewMessage($createdat, $createdby, $ticketid, $body, $isinternal)
+    {
+        return $this->databaseController->create('messages', ['createdat', 'createdby', 'ticketid', 'body', 'isinternal'],
+            [$createdat, $createdby, $ticketid, $body, $isinternal]);
+    }
+
     private function getUserFirstAndLastnameById($userId)
     {
         $user = $this->databaseController->execCustomSqlQuery("SELECT firstname, lastname FROM user WHERE id = $userId");
