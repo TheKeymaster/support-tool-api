@@ -110,10 +110,19 @@ class OutputController
                 if (count($messages) < 1) {
                     return ['error' => SecurityController::ACCESS_DENIED];
                 } else {
+                    foreach($messages as $key => $message) {
+                        $userId = $message['createdby'];
+                        $messages[$key]['createdby'] = $this->getUserFirstAndLastnameById($userId);
+                    }
                     return $messages;
                 }
             } else {
-                return $this->databaseController->execCustomSqlQuery("SELECT tickets.title, tickets.status, m.createdat, m.createdby, m.body, m.isinternal FROM tickets LEFT JOIN messages m ON tickets.id = m.ticketid WHERE tickets.id = '$ticketId'");
+                $messages = $this->databaseController->execCustomSqlQuery("SELECT tickets.title, tickets.status, m.createdat, m.createdby, m.body, m.isinternal FROM tickets LEFT JOIN messages m ON tickets.id = m.ticketid WHERE tickets.id = '$ticketId'");
+                foreach($messages as $key => $message) {
+                    $userId = $message['createdby'];
+                    $messages[$key]['createdby'] = $this->getUserFirstAndLastnameById($userId);
+                }
+                return $messages;
             }
         } else {
             return ['error' => SecurityController::INVALID_AUTHKEY];
@@ -176,5 +185,11 @@ class OutputController
     public function generateAuthKey()
     {
         return implode('-', str_split(substr(strtolower(md5(microtime().rand(1000, 9999))), 0, 30), 6));
+    }
+
+    private function getUserFirstAndLastnameById($userId)
+    {
+        $user = $this->databaseController->execCustomSqlQuery("SELECT firstname, lastname FROM user WHERE id = $userId");
+        return sprintf('%s %s', $user[0]['firstname'], $user[0]['lastname']);
     }
 }

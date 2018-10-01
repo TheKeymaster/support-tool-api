@@ -12,9 +12,10 @@ $outputController = new \api\Controllers\OutputController();
 $authkey = $outputController->generateAuthKey();
 
 // Set defaults for values that might be empty
-$_POST['ismobile'] = isset($_POST['ismobile']) ? $_POST['ismobile'] : null;
-$_POST['password'] = isset($_POST['password']) ? $_POST['password'] : null;
-$_POST['email'] = isset($_POST['email']) ? $_POST['email'] : '';
+$_POST['email'] = isset($_POST['email']) ? $_POST['email'] : false;
+$_POST['firstname'] = isset($_POST['firstname']) ? $_POST['firstname'] : false;
+$_POST['lastname'] = isset($_POST['lastname']) ? $_POST['lastname'] : false;
+$_POST['password'] = isset($_POST['password']) ? $_POST['password'] : false;
 
 $ismobile = $outputController->isUserMobile($_POST['ismobile']);
 $requestedUser = $databaseController->getUserByEmail($_POST['email']);

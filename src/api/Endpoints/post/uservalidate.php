@@ -21,7 +21,7 @@ if ($outputController->isPasswordValid($_POST['password'], $requestedUser['passw
     $result['result'] = true;
     $result['authkey'] = $requestedUser['authkey'];
 } else {
-    $result = ['result' => false];
+    $result['result'] = false;
 }
 
 echo json_encode($result);
