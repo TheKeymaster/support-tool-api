@@ -1,0 +1,30 @@
+{
+  "name": "thekeymaster/support-tool-api",
+  "description": "API for the support tool",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Dominik Brader",
+      "email": "dominik@brader.co.at",
+      "role": "Maintainer"
+    },
+    {
+      "name": "Philipp Schwaighofer",
+      "role": "Maintainer"
+    }
+  ],
+  "require": {
+    "ext-json": "^1.5"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^4.8.35 || ^5.7 || ^6.4 || ^7.0",
+    "symfony/console": "v3.2.9",
+    "friendsofphp/php-cs-fixer": "^2.13"
+  },
+  "autoload": {
+    "psr-0": {
+      "api": "src/"
+    }
+  }
+}

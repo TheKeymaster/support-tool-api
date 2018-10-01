@@ -2,7 +2,7 @@
 
 namespace api\Models;
 
-class Roles
+class Status
 {
     /** @var int $id */
     private $id;

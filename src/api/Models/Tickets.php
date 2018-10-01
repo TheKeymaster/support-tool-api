@@ -1,6 +1,6 @@
 <?php
 
-namespace src\api\Models;
+namespace api\Models;
 
 class Tickets
 {
@@ -12,4 +12,7 @@ class Tickets
 
     /** @var int $createdby */
     private $createdby;
+
+    /** @var int $status */
+    private $status;
 }
