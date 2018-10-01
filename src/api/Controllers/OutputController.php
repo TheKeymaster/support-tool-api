@@ -167,4 +167,14 @@ class OutputController
     {
         return $this->databaseController->read('*', 'roles');
     }
+
+    /**
+     * Generates a new auth key.
+     *
+     * @return string
+     */
+    public function generateAuthKey()
+    {
+        return implode('-', str_split(substr(strtolower(md5(microtime().rand(1000, 9999))), 0, 30), 6));
+    }
 }

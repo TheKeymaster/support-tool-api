@@ -10,6 +10,8 @@ ApiOutputHelper::setJsonHeader();
 $databaseController = ApiOutputHelper::createDatabaseConnection();
 $outputController = new OutputController();
 
+$_GET['authkey'] = isset($_GET['authkey']) ? $_GET['authkey'] : null;
+
 $requester = $outputController->sendAuthkeyRequest($_GET['authkey']);
 $result = $outputController->getTicketsFromRequester($requester);
 

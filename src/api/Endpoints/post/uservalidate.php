@@ -9,6 +9,7 @@ ApiOutputHelper::setJsonHeader();
 $databaseController = ApiOutputHelper::createDatabaseConnection();
 $outputController = new \api\Controllers\OutputController();
 
+// Set defaults for values that might be empty
 $_POST['ismobile'] = isset($_POST['ismobile']) ? $_POST['ismobile'] : null;
 $_POST['password'] = isset($_POST['password']) ? $_POST['password'] : null;
 $_POST['email'] = isset($_POST['email']) ? $_POST['email'] : '';
