@@ -76,7 +76,26 @@ class DatabaseController
             throw new InvalidArgumentException('Invalid type for table name submitted!');
         }
 
-        $query = "INSERT INTO $tableName ($fields) VALUES ($values)";
+        $fieldString = '';
+        foreach ($fields as $key => $field) {
+            if (count($fields) !== $key + 1) {
+                $fieldString .= $field . ', ';
+            } else {
+                $fieldString .= $field;
+            }
+        }
+
+        $valueString = '';
+        foreach ($values as $key => $value) {
+            if (count($values) !== $key + 1) {
+                $valueString .= '"' . $value . '"' . ', ';
+            } else {
+                $valueString .= '"' . $value . '"';
+            }
+        }
+
+
+        $query = "INSERT INTO $tableName ($fieldString) VALUES ($valueString)";
         if ($this->mysqli->query($query)) {
             $successMessage = 'Row(s) were successfully created!';
             $affectedRows = $this->mysqli->affected_rows;
