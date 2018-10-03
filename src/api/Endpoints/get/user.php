@@ -6,7 +6,7 @@ use api\Controllers\OutputController;
 use api\Controllers\SecurityController;
 use api\Helpers\ApiOutputHelper;
 
-ApiOutputHelper::setJsonHeader();
+ApiOutputHelper::setHeaders();
 
 $outputController = new OutputController();
 

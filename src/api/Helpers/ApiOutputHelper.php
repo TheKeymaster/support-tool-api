@@ -10,8 +10,9 @@ class ApiOutputHelper
     /**
      * Sets the default header to be json.
      */
-    public static function setJsonHeader()
+    public static function setHeaders()
     {
+        ini_set('display_errors', 'Off');
         header('Content-Type:application/json;charset=utf8');
         header('Access-Control-Allow-Origin:http://support-frontend.dom.olo');
         header('Access-Control-Allow-Methods:GET,PUT,POST,DELETE,PATCH,OPTIONS,Access-Control-Allow-Origin');
