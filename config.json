@@ -2,5 +2,10 @@
   "host": "localhost",
   "username": "db",
   "password": "secure",
-  "frontend-url": "http://support-frontend.dom.olo"
+  "frontend-url": "http://support-frontend.dom.olo",
+  "email-config": {
+    "client-id": "PLEASE FILL IN",
+    "client-secret": "PLEASE FILL IN",
+    "refresh-token": "PLEASE FILL IN"
+  }
 }
