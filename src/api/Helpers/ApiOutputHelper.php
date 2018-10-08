@@ -12,9 +12,10 @@ class ApiOutputHelper
      */
     public static function setHeaders()
     {
+        $configController = new ConfigController();
         ini_set('display_errors', 'Off');
         header('Content-Type:application/json;charset=utf8');
-        header('Access-Control-Allow-Origin:http://support-frontend.dom.olo');
+        header(sprintf('Access-Control-Allow-Origin:%s', $configController->getConfig()['frontend-url']));
         header('Access-Control-Allow-Methods:GET,PUT,POST,DELETE,PATCH,OPTIONS,Access-Control-Allow-Origin');
         header('Access-Control-Allow-Headers:Access-Control-Allow-Headers, Access-Control-Allow-Origin, Access-Control-Allow-Methods, Access-Control-Allow-Credentials, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers');
     }
