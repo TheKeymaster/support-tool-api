@@ -1,5 +1,6 @@
 {
   "host": "localhost",
   "username": "db",
-  "password": "secure"
+  "password": "secure",
+  "frontend-url": "http://support-frontend.dom.olo"
 }

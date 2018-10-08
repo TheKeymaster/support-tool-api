@@ -47,10 +47,8 @@ class DatabaseController
         $mysqli = new mysqli($host, $username, $password, self::DB_NAME);
 
         if ($mysqli->connect_error) {
-            throw new RuntimeException(sprintf(
-                'Connection to database failed. Reason: %s',
-                $mysqli->connect_error
-            ));
+            echo 'Can\'t connect to the mysql server. Make sure it is running and you have set the correct access rights!';
+            die();
         }
 
         $mysqli->set_charset('utf8');

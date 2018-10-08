@@ -84,9 +84,9 @@ class OutputController
             $userId = $requester[0]['id'];
 
             if ($requester[0]['role'] <= 1) {
-                return $this->databaseController->execCustomSqlQuery("SELECT id, title, status FROM tickets WHERE tickets.createdby = '$userId'");
+                return $this->databaseController->execCustomSqlQuery("SELECT id, title, createdby, status FROM tickets WHERE tickets.createdby = '$userId' ORDER BY status ASC, id");
             } else {
-                return $this->databaseController->execCustomSqlQuery("SELECT id, title, status FROM tickets");
+                return $this->databaseController->execCustomSqlQuery("SELECT id, title, createdby, status FROM tickets ORDER BY status ASC, id");
             }
 
         } else {

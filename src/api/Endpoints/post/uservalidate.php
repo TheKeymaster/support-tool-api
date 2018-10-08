@@ -4,7 +4,7 @@ require_once __DIR__ . '/../../../../vendor/autoload.php';
 
 use api\Helpers\ApiOutputHelper;
 
-ApiOutputHelper::setJsonHeader();
+ApiOutputHelper::setHeaders();
 
 $databaseController = ApiOutputHelper::createDatabaseConnection();
 $outputController = new \api\Controllers\OutputController();
