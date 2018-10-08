@@ -76,17 +76,20 @@ class OutputController
      * Gets all tickets from the requester.
      *
      * @param $requester
+     * @param string $query
      * @return array
      */
-    public function getTicketsFromRequester($requester)
+    public function getTicketsFromRequester($requester, $query)
     {
         if (array_key_exists(0, $requester)) {
             $userId = $requester[0]['id'];
+            $escapedQuery = $this->databaseController->escapeStringForSql($query);
+            $query = strlen($query) > 0 ? "WHERE title LIKE '%$escapedQuery%'" : '';
 
             if ($requester[0]['role'] <= 1) {
-                return $this->databaseController->execCustomSqlQuery("SELECT id, title, createdby, status FROM tickets WHERE tickets.createdby = '$userId' ORDER BY status ASC, id");
+                return $this->databaseController->execCustomSqlQuery("SELECT id, title, createdby, status FROM tickets WHERE tickets.createdby = '$userId' $query ORDER BY status ASC, id");
             } else {
-                return $this->databaseController->execCustomSqlQuery("SELECT id, title, createdby, status FROM tickets ORDER BY status ASC, id");
+                return $this->databaseController->execCustomSqlQuery("SELECT id, title, createdby, status FROM tickets $query ORDER BY status ASC, id");
             }
 
         } else {

@@ -229,6 +229,10 @@ class DatabaseController
         return $this->read('*', 'user', 1, "email = '$email'")[0];
     }
 
+    public function escapeStringForSql($string) {
+        return $this->mysqli->escape_string($string);
+    }
+
     /**
      * This function is being called if the SQL query returns an error.
      *
