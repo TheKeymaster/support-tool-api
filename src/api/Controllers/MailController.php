@@ -82,7 +82,7 @@ class MailController
     }
 
     private function setDefaultConfiguration() {
-        $this->mail->isSMTP();
+        $this->mail->isMail();
         $this->mail->SMTPDebug = 0;
         $this->mail->Host = self::DEFAULT_GOOGLE_HOST;
         $this->mail->Port = self::DEFAULT_GOOGLE_PORT;
