@@ -39,6 +39,11 @@ class MailController
         $this->twig = new Twig_Environment($loader);
     }
 
+    public function addAddress($toAddress, $toName)
+    {
+        $this->mail->addAddress($toAddress, $toName);
+    }
+
     /**
      * @param string $toAddress
      * @param string $toName
@@ -48,11 +53,10 @@ class MailController
      * @return bool
      * @throws \PHPMailer\PHPMailer\Exception
      */
-    public function sendMail($toAddress, $toName, $subject, $templateName, $data = [])
+    public function sendMail($subject, $templateName, $data = [])
     {
         $this->setDefaultConfiguration();
         $this->mail->setFrom($this->email, self::SENDER_NAME);
-        $this->mail->addAddress($toAddress, $toName);
 
         $this->mail->Subject = $subject;
 

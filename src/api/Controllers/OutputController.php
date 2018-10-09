@@ -206,9 +206,10 @@ class OutputController
     public function createNewMessage($createdat, $createdby, $ticketid, $body, $isinternal, $ticketCreation, $requester)
     {
         if ($isinternal === 0) {
+            $creator = sprintf('%s %s', $requester['firstname'], $requester['lastname']);
             switch($requester['role']) {
                 case 1:
-                    $this->sendMessageToAllSupportersAndAdmins($ticketCreation);
+                    $this->sendMessageToAllSupportersAndAdmins($ticketid, $ticketCreation, $creator);
                     $this->sendMessageToUser($ticketid, $ticketCreation);
                     break;
                 case 2:
@@ -222,22 +223,24 @@ class OutputController
     }
 
     /**
+     * @param $ticketid
      * @param bool $ticketCreation If this message was made because a ticket was created.
      * @throws \PHPMailer\PHPMailer\Exception
      */
-    private function sendMessageToAllSupportersAndAdmins($ticketCreation)
+    private function sendMessageToAllSupportersAndAdmins($ticketid, $ticketCreation, $creator)
     {
         $supportersAndAdmins = $this->databaseController->execCustomSqlQuery("SELECT * FROM user WHERE role > 1");
         $mailController = new MailController();
         foreach ($supportersAndAdmins as $supporterOrAdmin) {
             $name = sprintf('%s %s', $supporterOrAdmin['firstname'], $supporterOrAdmin['lastname']);
-            if ($ticketCreation) {
-                $mailController->sendMail($supporterOrAdmin['email'], $name, 'Ein neues Ticket wurde erstellt!',
-                    'ticket-created-admin.twig');
-            } else {
-                $mailController->sendMail($supporterOrAdmin['email'], $name, 'Eine neue Nachricht in einem Ticket!',
-                    'message-created-admin.twig');
-            }
+            $mailController->addAddress($supporterOrAdmin['email'], $name);
+        }
+        if ($ticketCreation) {
+            $mailController->sendMail('Ein neues Ticket wurde erstellt!',
+                'ticket-created-admin.twig', ['name' => $creator, 'id' => $ticketid]);
+        } else {
+            $mailController->sendMail('Es gibt eine neue Nachricht in einem Ticket!',
+                'message-created-admin.twig', ['name' => $creator, 'id' => $ticketid]);
         }
     }
 
@@ -252,12 +255,13 @@ class OutputController
         $creator = $this->databaseController->execCustomSqlQuery("SELECT * FROM user WHERE id = '$ticketCratorId'")[0];
         $name = sprintf('%s %s', $creator['firstname'], $creator['lastname']);
         $mailController = new MailController();
+        $mailController->addAddress($creator['email'], $name);
         if ($ticketCration) {
-            $mailController->sendMail($creator['email'], $name, 'Ein neues Ticket wurde erstellt!',
-                'ticket-created-user.twig');
+            $mailController->sendMail('Ein neues Ticket wurde erstellt!',
+                'ticket-created-user.twig', ['name' => $name, 'id' => $ticketid]);
         } else {
-            $mailController->sendMail($creator['email'], $name, 'Eine neue Nachricht in einem Ticket!',
-                'message-created-admin.twig');
+            $mailController->sendMail('Es gibt eine neue Nachricht in einem Ticket!',
+                'message-created-admin.twig', ['name' => $name, 'id' => $ticketid]);
         }
     }
 
