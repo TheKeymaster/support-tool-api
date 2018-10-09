@@ -16,6 +16,7 @@ class MailController
     const DEFAULT_HTML_UNSUPPORTED_MESSAGE = 'Please enable the HTML view to be able to view this document.';
     const TLS_ENCRYPTION = 'tls';
     const AUTH_TYPE_XOAUTH2 = 'XOAUTH2';
+    const ENCODING_UTF8 = 'utf-8';
 
     const SENDER_MAIL_ADDRESS = 'supp.tool@gmail.com';
     const SENDER_NAME = 'SupportTool Notification';
@@ -62,14 +63,16 @@ class MailController
             return false;
         }
 
-        $this->mail->CharSet = 'utf-8';
+        $this->mail->CharSet = self::ENCODING_UTF8;
         $this->mail->msgHTML($mailBody);
 
         $this->mail->AltBody = self::DEFAULT_HTML_UNSUPPORTED_MESSAGE;
 
         if (!$this->mail->send()) {
+            $this->mail->ClearAddresses();
             return false;
         } else {
+            $this->mail->ClearAddresses();
             return true;
         }
     }

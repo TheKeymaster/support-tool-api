@@ -13,6 +13,4 @@ $outputController = new OutputController();
 $result = $outputController->getAllRoles();
 $mailController = new MailController();
 
-$mailController->sendMail('dominik@brader.co.at', 'Dominik Brader', 'Testmail', 'test.twig');
-
 echo json_encode($result);
