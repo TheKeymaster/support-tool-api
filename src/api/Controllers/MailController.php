@@ -45,8 +45,6 @@ class MailController
     }
 
     /**
-     * @param string $toAddress
-     * @param string $toName
      * @param string $subject
      * @param string $templateName
      * @param array $data
