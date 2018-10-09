@@ -3,6 +3,7 @@
 namespace api\Controllers;
 
 use api\Helpers\ApiOutputHelper;
+use DateTime;
 
 class OutputController
 {
@@ -88,26 +89,33 @@ class OutputController
         if (array_key_exists(0, $requester)) {
             $userId = $requester[0]['id'];
             $escapedQuery = $this->databaseController->escapeStringForSql($query);
-            $query = strlen($query) > 0 ? "WHERE title LIKE '%$escapedQuery%'" : '';
-
-            if ($requester[0]['role'] <= 1) {
-                $data = $this->databaseController->execCustomSqlQuery("SELECT id, title, createdby, status FROM tickets WHERE tickets.createdby = '$userId' $query ORDER BY status ASC, id");
+            if (is_numeric($escapedQuery)) {
+                $query = "WHERE id=$escapedQuery";
             } else {
-                $data = $this->databaseController->execCustomSqlQuery("SELECT id, title, createdby, status FROM tickets ORDER BY status ASC, id");
+                $query = strlen($query) > 0 ? "WHERE title LIKE '%$escapedQuery%'" : '';
             }
 
-            foreach ($data as $value) {
-                if ($value['status'] > 1) {
-                    $ticketId = $value['id'];
+            if ($requester[0]['role'] <= 1) {
+                $tickets = $this->databaseController->execCustomSqlQuery("SELECT id, title, createdby, status FROM tickets WHERE tickets.createdby = '$userId' ORDER BY status ASC, id");
+            } else {
+                $tickets = $this->databaseController->execCustomSqlQuery("SELECT id, title, createdby, status FROM tickets $query ORDER BY status ASC, id");
+            }
+
+            foreach ($tickets as $ticket) {
+                if ($ticket['status'] <= 2) {
+                    $ticketId = $ticket['id'];
+
                     $messages = $this->databaseController->execCustomSqlQuery("SELECT * FROM messages WHERE ticketid=$ticketId ORDER BY createdat DESC");
-                    if (strtotime($messages[0]['createdat']) > strtotime('-3 days')) {
+                    $messageCreationDate = new DateTime($messages[0]['createdat']);
+                    $now = new DateTime();
+                    if ($messageCreationDate->diff($now)->days > 3) {
                         $closed = self::TICKET_CLOSED;
                         $this->databaseController->execCustomSqlQuery("UPDATE tickets SET status=$closed");
                     }
                 }
             }
 
-            return $data;
+            return $tickets;
 
         } else {
             return ['error' => SecurityController::INVALID_AUTHKEY];
@@ -289,7 +297,7 @@ class OutputController
                 'ticket-created-user.twig', ['name' => $name, 'id' => $ticketid]);
         } else {
             $mailController->sendMail('Es gibt eine neue Nachricht in einem Ticket!',
-                'message-created-admin.twig', ['name' => $name, 'id' => $ticketid]);
+                'message-created-user.twig', ['name' => $name, 'id' => $ticketid]);
         }
     }
 
