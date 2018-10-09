@@ -189,7 +189,7 @@ class DatabaseController
      * Executes a custom sql command.
      *
      * @param $query
-     * @return array
+     * @return mixed
      */
     public function execCustomSqlQuery($query)
     {
@@ -198,7 +198,11 @@ class DatabaseController
         }
 
         if ($result = $this->mysqli->query($query)) {
-            return $result->fetch_all(MYSQLI_ASSOC);
+            if ($result === true) {
+                return true;
+            } else {
+                return $result->fetch_all(MYSQLI_ASSOC);
+            }
         } else {
             return $this->unknownDatabaseError();
         }

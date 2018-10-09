@@ -6,6 +6,10 @@ use api\Helpers\ApiOutputHelper;
 
 class OutputController
 {
+    const TICKET_OPEN = 1;
+    const TICKET_WAITING = 2;
+    const TICKET_CLOSED = 3;
+
     private $databaseController;
 
     private $securityController;
@@ -87,10 +91,23 @@ class OutputController
             $query = strlen($query) > 0 ? "WHERE title LIKE '%$escapedQuery%'" : '';
 
             if ($requester[0]['role'] <= 1) {
-                return $this->databaseController->execCustomSqlQuery("SELECT id, title, createdby, status FROM tickets WHERE tickets.createdby = '$userId' $query ORDER BY status ASC, id");
+                $data = $this->databaseController->execCustomSqlQuery("SELECT id, title, createdby, status FROM tickets WHERE tickets.createdby = '$userId' $query ORDER BY status ASC, id");
             } else {
-                return $this->databaseController->execCustomSqlQuery("SELECT id, title, createdby, status FROM tickets ORDER BY status ASC, id");
+                $data = $this->databaseController->execCustomSqlQuery("SELECT id, title, createdby, status FROM tickets ORDER BY status ASC, id");
             }
+
+            foreach ($data as $value) {
+                if ($value['status'] > 1) {
+                    $ticketId = $value['id'];
+                    $messages = $this->databaseController->execCustomSqlQuery("SELECT * FROM messages WHERE ticketid=$ticketId ORDER BY createdat DESC");
+                    if (strtotime($messages[0]['createdat']) > strtotime('-3 days')) {
+                        $closed = self::TICKET_CLOSED;
+                        $this->databaseController->execCustomSqlQuery("UPDATE tickets SET status=$closed");
+                    }
+                }
+            }
+
+            return $data;
 
         } else {
             return ['error' => SecurityController::INVALID_AUTHKEY];
@@ -211,15 +228,26 @@ class OutputController
                 case 1:
                     $this->sendMessageToAllSupportersAndAdmins($ticketid, $ticketCreation, $creator);
                     $this->sendMessageToUser($ticketid, $ticketCreation);
+                    $this->setTicketStatus($ticketid, self::TICKET_OPEN);
                     break;
                 case 2:
                 case 3:
                     $this->sendMessageToUser($ticketid, $ticketCreation);
+                    $this->setTicketStatus($ticketid, self::TICKET_WAITING);
                     break;
             }
         }
         return $this->databaseController->create('messages', ['createdat', 'createdby', 'ticketid', 'body', 'isinternal'],
             [$createdat, $createdby, $ticketid, $body, $isinternal]);
+    }
+
+    /**
+     * @param int $ticketid
+     * @param string $status
+     */
+    private function setTicketStatus($ticketid, $status)
+    {
+        $this->databaseController->execCustomSqlQuery("UPDATE tickets SET status='$status' WHERE id=$ticketid");
     }
 
     /**
