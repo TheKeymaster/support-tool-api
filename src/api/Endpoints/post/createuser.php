@@ -17,7 +17,7 @@ $lastname = isset($_POST['lastname']) ? $_POST['lastname'] : false;
 $password = isset($_POST['password']) ? $_POST['password'] : false;
 
 if ($email && $firstname && $lastname && $password) {
-    $userExists = $databaseController->execCustomSqlQuery("SELECT * FROM user WHERE email = $email");
+    $userExists = $databaseController->execCustomSqlQuery("SELECT * FROM user WHERE email = '$email'");
     if ($userExists) {
         $result['result'] = false;
     } else {
