@@ -89,16 +89,19 @@ class OutputController
         if (array_key_exists(0, $requester)) {
             $userId = $requester[0]['id'];
             $escapedQuery = $this->databaseController->escapeStringForSql($query);
+            $limit = 1000;
             if (is_numeric($escapedQuery)) {
                 $query = "WHERE id=$escapedQuery";
-            } else {
+                $limit = 1;
+            } elseif (strlen($query) > 0) {
                 $query = strlen($query) > 0 ? "WHERE title LIKE '%$escapedQuery%'" : '';
+                $limit = 6;
             }
 
             if ($requester[0]['role'] <= 1) {
-                $tickets = $this->databaseController->execCustomSqlQuery("SELECT id, title, createdby, status FROM tickets WHERE tickets.createdby = '$userId' ORDER BY status ASC, id");
+                $tickets = $this->databaseController->execCustomSqlQuery("SELECT id, title, createdby, status FROM tickets WHERE tickets.createdby = '$userId' ORDER BY status ASC, id LIMIT $limit");
             } else {
-                $tickets = $this->databaseController->execCustomSqlQuery("SELECT id, title, createdby, status FROM tickets $query ORDER BY status ASC, id");
+                $tickets = $this->databaseController->execCustomSqlQuery("SELECT id, title, createdby, status FROM tickets $query ORDER BY status ASC, id LIMIT $limit");
             }
 
             foreach ($tickets as $ticket) {
