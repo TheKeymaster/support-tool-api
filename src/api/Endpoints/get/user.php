@@ -15,7 +15,7 @@ $_GET['authkey'] = isset($_GET['authkey']) ? $_GET['authkey'] : null;
 $requester = $outputController->sendAuthkeyRequest($_GET['authkey']);
 $result = $outputController->sendUserIdRequest($requester);
 
-$defaultUrl = urlencode('//support-tool.brader.co.at/web/images/default.jpg');
+$defaultUrl = urlencode('https://support-tool.brader.co.at/web/images/default.jpg');
 $result[0]['imageurl'] = sprintf('https://secure.gravatar.com/avatar/%s?d=%s&s=80', md5($result[0]['email']), $defaultUrl);
 
 echo json_encode($result);
