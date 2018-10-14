@@ -143,7 +143,10 @@ class OutputController
                 } else {
                     foreach($messages as $key => $message) {
                         $userId = $message['createdby'];
-                        $messages[$key]['createdby'] = $this->getUserFirstAndLastnameById($userId);
+                        $userData = $this->getUserFirstAndLastnameById($userId);
+                        $messages[$key]['createdby'] = $userData['createdby'];
+                        $messages[$key]['email'] = $userData['email'];
+                        $messages[$key]['role'] = $userData['role'];
                     }
                     return $messages;
                 }
@@ -151,7 +154,10 @@ class OutputController
                 $messages = $this->databaseController->execCustomSqlQuery("SELECT tickets.title, tickets.status, m.createdat, m.createdby, m.body, m.isinternal FROM tickets LEFT JOIN messages m ON tickets.id = m.ticketid WHERE tickets.id = '$ticketId'");
                 foreach($messages as $key => $message) {
                     $userId = $message['createdby'];
-                    $messages[$key]['createdby'] = $this->getUserFirstAndLastnameById($userId);
+                    $userData = $this->getUserFirstAndLastnameById($userId);
+                    $messages[$key]['createdby'] = $userData['createdby'];
+                    $messages[$key]['email'] = $userData['email'];
+                    $messages[$key]['role'] = $userData['role'];
                 }
                 return $messages;
             }
@@ -306,7 +312,7 @@ class OutputController
 
     private function getUserFirstAndLastnameById($userId)
     {
-        $user = $this->databaseController->execCustomSqlQuery("SELECT firstname, lastname FROM user WHERE id = $userId");
-        return sprintf('%s %s', $user[0]['firstname'], $user[0]['lastname']);
+        $user = $this->databaseController->execCustomSqlQuery("SELECT firstname, lastname, email, role FROM user WHERE id = $userId");
+        return ['createdby' => sprintf('%s %s', $user[0]['firstname'], $user[0]['lastname']), 'email' => $user[0]['email'], 'role' => $user[0]['role']];
     }
 }
