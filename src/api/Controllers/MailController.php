@@ -29,10 +29,17 @@ class MailController
 
     private $twig;
 
+    private $enabled;
+
     public function __construct()
     {
         $configController = new ConfigController();
         $this->config = $configController->getConfig()['email-config'];
+        if (strlen($this->config['client-id']) === 0) {
+            $this->enabled = false;
+        } else {
+            $this->enabled = true;
+        }
         $this->mail = new PHPMailer();
 
         $loader = new Twig_Loader_Filesystem(__DIR__ . '/../MailTemplates/');
@@ -53,28 +60,32 @@ class MailController
      */
     public function sendMail($subject, $templateName, $data = [])
     {
-        $this->setDefaultConfiguration();
-        $this->mail->setFrom($this->email, self::SENDER_NAME);
+        if ($this->enabled === true) {
+            $this->setDefaultConfiguration();
+            $this->mail->setFrom($this->email, self::SENDER_NAME);
 
-        $this->mail->Subject = $subject;
+            $this->mail->Subject = $subject;
 
-        try {
-            $template = $this->twig->load($templateName);
-            $mailBody = $template->render($data);
-        } catch (Exception $e) {
-            return false;
-        }
+            try {
+                $template = $this->twig->load($templateName);
+                $mailBody = $template->render($data);
+            } catch (Exception $e) {
+                return false;
+            }
 
-        $this->mail->CharSet = self::ENCODING_UTF8;
-        $this->mail->msgHTML($mailBody);
+            $this->mail->CharSet = self::ENCODING_UTF8;
+            $this->mail->msgHTML($mailBody);
 
-        $this->mail->AltBody = self::DEFAULT_HTML_UNSUPPORTED_MESSAGE;
+            $this->mail->AltBody = self::DEFAULT_HTML_UNSUPPORTED_MESSAGE;
 
-        if (!$this->mail->send()) {
-            $this->mail->ClearAddresses();
-            return false;
+            if (!$this->mail->send()) {
+                $this->mail->ClearAddresses();
+                return false;
+            } else {
+                $this->mail->ClearAddresses();
+                return true;
+            }
         } else {
-            $this->mail->ClearAddresses();
             return true;
         }
     }

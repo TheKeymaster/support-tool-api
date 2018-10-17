@@ -89,16 +89,19 @@ class OutputController
         if (array_key_exists(0, $requester)) {
             $userId = $requester[0]['id'];
             $escapedQuery = $this->databaseController->escapeStringForSql($query);
+            $limit = 1000;
             if (is_numeric($escapedQuery)) {
                 $query = "WHERE id=$escapedQuery";
-            } else {
+                $limit = 1;
+            } elseif (strlen($query) > 0) {
                 $query = strlen($query) > 0 ? "WHERE title LIKE '%$escapedQuery%'" : '';
+                $limit = 6;
             }
 
             if ($requester[0]['role'] <= 1) {
-                $tickets = $this->databaseController->execCustomSqlQuery("SELECT id, title, createdby, status FROM tickets WHERE tickets.createdby = '$userId' ORDER BY status ASC, id");
+                $tickets = $this->databaseController->execCustomSqlQuery("SELECT id, title, createdby, status FROM tickets WHERE tickets.createdby = '$userId' ORDER BY status ASC, id LIMIT $limit");
             } else {
-                $tickets = $this->databaseController->execCustomSqlQuery("SELECT id, title, createdby, status FROM tickets $query ORDER BY status ASC, id");
+                $tickets = $this->databaseController->execCustomSqlQuery("SELECT id, title, createdby, status FROM tickets $query ORDER BY status ASC, id LIMIT $limit");
             }
 
             foreach ($tickets as $ticket) {
@@ -140,7 +143,10 @@ class OutputController
                 } else {
                     foreach($messages as $key => $message) {
                         $userId = $message['createdby'];
-                        $messages[$key]['createdby'] = $this->getUserFirstAndLastnameById($userId);
+                        $userData = $this->getUserFirstAndLastnameById($userId);
+                        $messages[$key]['createdby'] = $userData['createdby'];
+                        $messages[$key]['email'] = $userData['email'];
+                        $messages[$key]['role'] = $userData['role'];
                     }
                     return $messages;
                 }
@@ -148,7 +154,10 @@ class OutputController
                 $messages = $this->databaseController->execCustomSqlQuery("SELECT tickets.title, tickets.status, m.createdat, m.createdby, m.body, m.isinternal FROM tickets LEFT JOIN messages m ON tickets.id = m.ticketid WHERE tickets.id = '$ticketId'");
                 foreach($messages as $key => $message) {
                     $userId = $message['createdby'];
-                    $messages[$key]['createdby'] = $this->getUserFirstAndLastnameById($userId);
+                    $userData = $this->getUserFirstAndLastnameById($userId);
+                    $messages[$key]['createdby'] = $userData['createdby'];
+                    $messages[$key]['email'] = $userData['email'];
+                    $messages[$key]['role'] = $userData['role'];
                 }
                 return $messages;
             }
@@ -303,7 +312,7 @@ class OutputController
 
     private function getUserFirstAndLastnameById($userId)
     {
-        $user = $this->databaseController->execCustomSqlQuery("SELECT firstname, lastname FROM user WHERE id = $userId");
-        return sprintf('%s %s', $user[0]['firstname'], $user[0]['lastname']);
+        $user = $this->databaseController->execCustomSqlQuery("SELECT firstname, lastname, email, role FROM user WHERE id = $userId");
+        return ['createdby' => sprintf('%s %s', $user[0]['firstname'], $user[0]['lastname']), 'email' => $user[0]['email'], 'role' => $user[0]['role']];
     }
 }
