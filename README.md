@@ -5,8 +5,8 @@ in order to prevent direct requests to the database.
 
 Requirements:
 
- * PHP
- * MySQL database with demo data.
+ * PHP (7.0 or above)
+ * MySQL database with demo data (demo data is not included).
  * Optional: Apache 2
 
 
@@ -20,10 +20,10 @@ Users are all users. This means customers, support employees, and administrators
 
 You will receive the following attributes when requesting a user:
 
- * email: String
- * firstname: String
- * lastname: String
- * role: Int
+ * email: string
+ * firstname: string
+ * lastname: string
+ * role: int
 
 ##### Request user by authkey
 
