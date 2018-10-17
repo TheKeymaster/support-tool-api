@@ -91,17 +91,17 @@ class OutputController
             $escapedQuery = $this->databaseController->escapeStringForSql($query);
             $limit = 1000;
             if (is_numeric($escapedQuery)) {
-                $query = "WHERE id=$escapedQuery";
+                $query = "WHERE t.id=$escapedQuery";
                 $limit = 1;
             } elseif (strlen($query) > 0) {
-                $query = strlen($query) > 0 ? "WHERE title LIKE '%$escapedQuery%'" : '';
+                $query = strlen($query) > 0 ? "WHERE t.title LIKE '%$escapedQuery%'" : '';
                 $limit = 6;
             }
 
             if ($requester[0]['role'] <= 1) {
-                $tickets = $this->databaseController->execCustomSqlQuery("SELECT id, title, createdby, status FROM tickets WHERE tickets.createdby = '$userId' ORDER BY status ASC, id LIMIT $limit");
+                $tickets = $this->databaseController->execCustomSqlQuery("SELECT t.id, t.title, u.firstname, u.lastname, t.status FROM tickets t LEFT JOIN user u on t.createdby = u.id WHERE t.createdby = '$userId' ORDER BY t.status ASC, t.id LIMIT $limit");
             } else {
-                $tickets = $this->databaseController->execCustomSqlQuery("SELECT id, title, createdby, status FROM tickets $query ORDER BY status ASC, id LIMIT $limit");
+                $tickets = $this->databaseController->execCustomSqlQuery("SELECT t.id, t.title, u.firstname, u.lastname, t.status FROM tickets t LEFT JOIN user u on t.createdby = u.id $query ORDER BY status ASC, id LIMIT $limit");
             }
 
             foreach ($tickets as $ticket) {
@@ -240,16 +240,18 @@ class OutputController
     public function createNewMessage($createdat, $createdby, $ticketid, $body, $isinternal, $ticketCreation, $requester)
     {
         if ($isinternal === 0) {
+            $configController = new ConfigController();
+            $config = $configController->getConfig();
             $creator = sprintf('%s %s', $requester['firstname'], $requester['lastname']);
             switch($requester['role']) {
                 case 1:
-                    $this->sendMessageToAllSupportersAndAdmins($ticketid, $ticketCreation, $creator);
-                    $this->sendMessageToUser($ticketid, $ticketCreation);
+                    $this->sendMessageToAllSupportersAndAdmins($ticketid, $ticketCreation, $creator, $config['frontend-url']);
+                    $this->sendMessageToUser($ticketid, $ticketCreation, $config['frontend-url']);
                     $this->setTicketStatus($ticketid, self::TICKET_OPEN);
                     break;
                 case 2:
                 case 3:
-                    $this->sendMessageToUser($ticketid, $ticketCreation);
+                    $this->sendMessageToUser($ticketid, $ticketCreation, $config['frontend-url']);
                     $this->setTicketStatus($ticketid, self::TICKET_WAITING);
                     break;
             }
@@ -272,7 +274,7 @@ class OutputController
      * @param bool $ticketCreation If this message was made because a ticket was created.
      * @throws \PHPMailer\PHPMailer\Exception
      */
-    private function sendMessageToAllSupportersAndAdmins($ticketid, $ticketCreation, $creator)
+    private function sendMessageToAllSupportersAndAdmins($ticketid, $ticketCreation, $creator, $url)
     {
         $supportersAndAdmins = $this->databaseController->execCustomSqlQuery("SELECT * FROM user WHERE role > 1");
         $mailController = new MailController();
@@ -282,10 +284,10 @@ class OutputController
         }
         if ($ticketCreation) {
             $mailController->sendMail('Ein neues Ticket wurde erstellt!',
-                'ticket-created-admin.twig', ['name' => $creator, 'id' => $ticketid]);
+                'ticket-created-admin.twig', ['name' => $creator, 'id' => $ticketid, 'url' => $url]);
         } else {
             $mailController->sendMail('Es gibt eine neue Nachricht in einem Ticket!',
-                'message-created-admin.twig', ['name' => $creator, 'id' => $ticketid]);
+                'message-created-admin.twig', ['name' => $creator, 'id' => $ticketid, 'url' => $url]);
         }
     }
 
@@ -294,7 +296,7 @@ class OutputController
      * @param $ticketCration
      * @throws \PHPMailer\PHPMailer\Exception
      */
-    private function sendMessageToUser($ticketid, $ticketCration)
+    private function sendMessageToUser($ticketid, $ticketCration, $url)
     {
         $ticketCratorId = $this->databaseController->execCustomSqlQuery("SELECT * FROM tickets WHERE id = '$ticketid'")[0]['createdby'];
         $creator = $this->databaseController->execCustomSqlQuery("SELECT * FROM user WHERE id = '$ticketCratorId'")[0];
@@ -303,10 +305,10 @@ class OutputController
         $mailController->addAddress($creator['email'], $name);
         if ($ticketCration) {
             $mailController->sendMail('Ein neues Ticket wurde erstellt!',
-                'ticket-created-user.twig', ['name' => $name, 'id' => $ticketid]);
+                'ticket-created-user.twig', ['name' => $name, 'id' => $ticketid, 'url' => $url]);
         } else {
             $mailController->sendMail('Es gibt eine neue Nachricht in einem Ticket!',
-                'message-created-user.twig', ['name' => $name, 'id' => $ticketid]);
+                'message-created-user.twig', ['name' => $name, 'id' => $ticketid, 'url' => $url]);
         }
     }
 
